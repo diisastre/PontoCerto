@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prato Certo | Cardápio filtrado pela sua dieta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topo">
+    <a class="logo" href="#inicio">
+      <span class="logo-icone" aria-hidden="true">🍽️</span>
+      Prato Certo
+    </a>
+    <nav class="menu">
+      <a href="#inicio">Restrições</a>
+      <a href="#cardapio">Cardápio</a>
+    </nav>
+  </header>
+
+  <main>
+    
+    <section class="hero" id="inicio">
+      <div class="hero-texto">
+        <h1>Encontre o prato certo para a sua dieta</h1>
+        <p>Marque suas restrições alimentares e veja só o que você pode pedir.</p>
+
+        <fieldset class="restricoes">
+          <legend>Minhas restrições</legend>
+          <div class="chips" id="restricoes"></div>
+        </fieldset>
+      </div>
+
+      <div class="hero-circulo" aria-live="polite">
+        <strong id="contador">0</strong>
+        <span id="contador-texto">pratos para você</span>
+      </div>
+    </section>
+
+    <section class="cardapio" id="cardapio">
+      <div class="cardapio-topo">
+        <h2>Cardápio</h2>
+        <input type="search" id="busca" placeholder="Buscar prato pelo nome" aria-label="Buscar prato pelo nome">
+      </div>
+
+      <div class="categorias" id="categorias">
+        <button type="button" data-categoria="" aria-pressed="true">Todos</button>
+        <button type="button" data-categoria="Entradas" aria-pressed="false">Entradas</button>
+        <button type="button" data-categoria="Pratos principais" aria-pressed="false">Pratos principais</button>
+        <button type="button" data-categoria="Sobremesas" aria-pressed="false">Sobremesas</button>
+        <button type="button" data-categoria="Bebidas" aria-pressed="false">Bebidas</button>
+      </div>
+
+      <p class="mensagem" id="mensagem" role="status"></p>
+      <div class="grade" id="pratos"></div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <p>Prato Certo · Projeto Integrador 3 · IFMS Campus Nova Andradina</p>
+    <p>As informações dos pratos devem ser confirmadas com o restaurante. Em caso de alergia grave, avise a equipe antes de pedir.</p>
+  </footer>
+
+
+  <dialog class="detalhes" id="detalhes">
+    <form method="dialog">
+      <button class="fechar" aria-label="Fechar detalhes">×</button>
+    </form>
+    <div id="detalhes-conteudo"></div>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>

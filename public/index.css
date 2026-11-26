@@ -266,13 +266,32 @@ input {
   background: var(--branco);
 }
 
+/* ---------- Imagens dos pratos ---------- */
 .prato-imagem {
-  display: grid;
-  place-items: center;
-  height: 150px;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 20px;
   background: var(--verde-claro);
-  font-size: 4.2rem;
+}
+
+.prato-imagem img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: inherit;
+}
+
+/* ---------- Imagem nos detalhes ---------- */
+.detalhes .prato-imagem {
+  height: 220px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 20px;
 }
 
 .prato h3 {
@@ -413,3 +432,4 @@ input {
     transition: none !important;
   }
 }
+.prato-imagem img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit; }

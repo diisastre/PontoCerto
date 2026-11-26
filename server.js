@@ -8,6 +8,7 @@ const banco = new Database('prato_certo.db');
 
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/img', express.static('img'));
 
 // Listar restrições
 app.get('/api/restricoes', (req, res) => {

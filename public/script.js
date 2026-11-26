@@ -78,7 +78,7 @@ function mostrarPratos() {
     .map(
       (p) => `
         <article class="prato">
-          <div class="prato-imagem" aria-hidden="true">${p.icone}</div>
+          <div class="prato-imagem">${p.imagem ? `<img src="${p.imagem}" alt="${p.nome}">` : `<span>Imagem indisponível</span>`}</div>
           <h3>${p.nome}</h3>
           <p>${p.descricao}</p>
           <div class="tags">${criarTags(p.restricoes)}</div>
@@ -96,7 +96,7 @@ function abrirDetalhes(id) {
   const restricoes = prato.restricoes ? prato.restricoes.split(',').join(', ') : 'Nenhuma';
 
   detalhesConteudo.innerHTML = `
-    <div class="prato-imagem" aria-hidden="true">${prato.icone}</div>
+    <div class="prato-imagem">${prato.imagem ? `<img src="${prato.imagem}" alt="${prato.nome}">` : `<span>Imagem indisponível</span>`}</div>
     <h3>${prato.nome}</h3>
     <p>${prato.descricao}</p>
     <h4>Ingredientes</h4>

@@ -17,7 +17,8 @@ banco.exec(`
     nome      TEXT NOT NULL,
     descricao TEXT,
     categoria TEXT,
-    preco     REAL
+    preco     REAL,
+    imagem TEXT
   );
 
   CREATE TABLE prato_restricao (
@@ -36,6 +37,19 @@ const inserirRestricao = banco.prepare('INSERT INTO restricoes (nome) VALUES (?)
 const inserirPrato = banco.prepare(
   'INSERT INTO pratos (nome, descricao, categoria, preco) VALUES (?, ?, ?, ?)'
 );
+const imagens = {
+  'Salada Caprese': '/img/Insalata Caprese – Tomaten Mozzarella Salat » Taste of Travel.jpg',
+  'Bruschetta de Tomate': '/img/Italian Bruschetta.jpg', 'Guacamole': '/img/Guacamole.jpg',
+  'Salada de Grão-de-bico': '/img/Salada de Grão-de-Bico Refrescante 🥗🌿_ 30 Minutos de Preparo _ Receita Fácil - Receitas do Blog do Lago.jpg',
+  'Batata Rústica': '/img/🥔 Batata Rústica Crocante para o Jogo….jpg', 'Sopa de Legumes': '/img/Minestrone di verdure.jpg',
+  'Risoto de Cogumelos': '/img/Mushroom Risotto 🍄🧂_Serves_ 4 _ Prep Time_ 10….jpg',
+  'Curry de Grão-de-bico': '/img/Creamy Coconut Chickpea Curry with Aromatic….jpg',
+  'Lasanha de Vegetais': '/img/Lasa#U00f1a de Verduras Asadas - Receta Vegetariana Deliciosa.jpg',
+  'Quinoa com Legumes': '/img/Veggie Loaded Quinoa Fried Rice Flavorful and Easy___.jpg',
+  'Peixe Assado': '/img/Easy Spicy Lemon Garlic Baked Tilapia.jpg', 'Arroz com Lentilhas': '/img/Arroz Integral com Lentilhas Nutritivo e Saboroso#U2026.jpg',
+  'Tofu com Legumes': '/img/Healthy Veggie Stir Fry with Tofu and Brown Rice.jpg'
+};
+const atualizarImagem = banco.prepare('UPDATE pratos SET imagem = ? WHERE nome = ?');
 const ligar = banco.prepare('INSERT INTO prato_restricao (prato_id, restricao_id) VALUES (?, ?)');
 
 
@@ -79,6 +93,7 @@ const pratos = [
 pratos.forEach(([nome, descricao, categoria, preco, restricoes]) => {
   const { lastInsertRowid } = inserirPrato.run(nome, descricao, categoria, preco);
   restricoes.forEach((r) => ligar.run(lastInsertRowid, r));
+  atualizarImagem.run(imagens[nome] || null, nome);
 });
 
 console.log('Banco criado com sucesso!');

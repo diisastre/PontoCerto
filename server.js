@@ -1,83 +1,68 @@
-// Servidor do Prato Certo: entrega o site e responde às consultas ao MySQL.
+
 const express = require('express');
-const mysql = require('mysql2/promise');
+const Database = require('better-sqlite3');
 
 const app = express();
 
-// Conexão com o banco. Troque o usuário e a senha pelos do seu MySQL.
-const banco = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'BelaKawaii14',
-  database: 'prato_certo',
-});
+const banco = new Database('prato_certo.db');
 
-// Entrega os arquivos da pasta "public" (HTML, CSS e JavaScript)
+app.use(express.json());
 app.use(express.static('public'));
 
-// Lista todas as restrições alimentares
-app.get('/api/restricoes', async (req, res) => {
-  try {
-    const [restricoes] = await banco.query('SELECT id, nome FROM restricoes ORDER BY id');
-    res.json(restricoes);
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ erro: 'Não foi possível buscar as restrições.' });
-  }
+// Listar restrições
+app.get('/api/restricoes', (req, res) => {
+  const restricoes = banco.prepare(
+    'SELECT * FROM restricoes'
+  ).all();
+
+  res.json(restricoes);
 });
 
-// Lista os pratos. Filtros opcionais: restricoes (ex.: "1,2"), categoria e busca
-app.get('/api/pratos', async (req, res) => {
-  const { categoria, busca } = req.query;
-  const restricoes = (req.query.restricoes || '')
-    .split(',')
-    .map(Number)
-    .filter(Number.isInteger);
+// Listar pratos
+app.get('/api/pratos', (req, res) => {
+  const restricoes = req.query.restricoes
+    ? req.query.restricoes.split(',').map(Number).filter(Number.isInteger)
+    : [];
 
-  const filtros = [];
-  const valores = [];
+  const categoria = req.query.categoria || '';
+  const busca = req.query.busca || '';
+
+  let sql = `
+    SELECT p.*,
+      COALESCE(GROUP_CONCAT(r.nome, ','), '') AS restricoes
+    FROM pratos p
+    LEFT JOIN prato_restricao pr ON p.id = pr.prato_id
+    LEFT JOIN restricoes r ON pr.restricao_id = r.id
+    WHERE (p.nome LIKE ? OR p.descricao LIKE ?)
+  `;
+
+  const parametros = [`%${busca}%`, `%${busca}%`];
 
   if (categoria) {
-    filtros.push('p.categoria = ?');
-    valores.push(categoria);
+    sql += ' AND p.categoria = ?';
+    parametros.push(categoria);
   }
 
-  if (busca) {
-    filtros.push('p.nome LIKE ?');
-    valores.push(`%${busca}%`);
-  }
+  sql += ' GROUP BY p.id';
 
-  // Só entram os pratos que atendem TODAS as restrições escolhidas
+  let resultado = banco.prepare(sql).all(...parametros);
+
+  // Filtrar pratos pelas restrições escolhidas
   if (restricoes.length > 0) {
-    filtros.push(`p.id IN (
-      SELECT prato_id FROM prato_restricao
-      WHERE restricao_id IN (?)
-      GROUP BY prato_id
-      HAVING COUNT(DISTINCT restricao_id) = ?
-    )`);
-    valores.push(restricoes, restricoes.length);
+    resultado = resultado.filter(prato => {
+      const ids = banco.prepare(`
+        SELECT restricao_id
+        FROM prato_restricao
+        WHERE prato_id = ?
+      `).all(prato.id).map(r => r.restricao_id);
+
+      return restricoes.every(id => ids.includes(id));
+    });
   }
 
-  const where = filtros.length > 0 ? 'WHERE ' + filtros.join(' AND ') : '';
-
-  try {
-    const [pratos] = await banco.query(
-      `SELECT p.*, GROUP_CONCAT(r.nome ORDER BY r.id SEPARATOR ',') AS restricoes
-       FROM pratos p
-       LEFT JOIN prato_restricao pr ON pr.prato_id = p.id
-       LEFT JOIN restricoes r ON r.id = pr.restricao_id
-       ${where}
-       GROUP BY p.id
-       ORDER BY p.nome`,
-      valores
-    );
-    res.json(pratos);
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ erro: 'Não foi possível buscar os pratos.' });
-  }
+  res.json(resultado);
 });
 
 app.listen(3000, () => {
-  console.log('Prato Certo rodando em http://localhost:3000');
+  console.log('Servidor rodando em http://localhost:3000');
 });
